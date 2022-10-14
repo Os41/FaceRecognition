@@ -20,6 +20,7 @@
     <!--        android:theme="@style/Theme.FaceRecognition"-->
     <!--        Theme for Detection:-->
     <!--        android:theme="@style/AppTheme.ObjectDetection"-->
+    <!--        azoooz-->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher_facerec"
