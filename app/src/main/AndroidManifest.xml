@@ -15,7 +15,7 @@
         android:normalScreens="true"
         android:smallScreens="true"
         android:xlargeScreens="true" />
-    <!--    Important-->
+
     <!--        Theme for Main:-->
     <!--        android:theme="@style/Theme.FaceRecognition"-->
     <!--        Theme for Detection:-->
