@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/classitem"
+        android:icon="@drawable/classroomicon"
+        android:title="Search" />
+
+    <item
+        android:id="@+id/homeitem"
+        android:icon="@drawable/home"
+        android:title="Comment" />
+
+    <item
+        android:id="@+id/personitem"
+        android:icon="@drawable/ic_baseline_person_24"
+        android:title="Stats" />
+</menu>

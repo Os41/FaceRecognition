@@ -1,0 +1,97 @@
+{
+  "project_info": {
+    "project_number": "553732461983",
+    "project_id": "freca-dev",
+    "storage_bucket": "freca-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:553732461983:android:2a4e9eae6e4050ceda99aa",
+        "android_client_info": {
+          "package_name": "com.example.facerecognition"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "553732461983-irmqc3cq8u3lu19srbb8mqqu94bu2e6l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRmi0C5X7UBVuY6gwiIEQhxWPd5xOx6Tw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "553732461983-irmqc3cq8u3lu19srbb8mqqu94bu2e6l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:553732461983:android:42e31a76a5f6dad1da99aa",
+        "android_client_info": {
+          "package_name": "org.tensorflow.lite.examples.detection"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "553732461983-irmqc3cq8u3lu19srbb8mqqu94bu2e6l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRmi0C5X7UBVuY6gwiIEQhxWPd5xOx6Tw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "553732461983-irmqc3cq8u3lu19srbb8mqqu94bu2e6l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:553732461983:android:3e66bd1d6efe1f42da99aa",
+        "android_client_info": {
+          "package_name": "org.tensorflow.lite.examples.facerecognition"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "553732461983-irmqc3cq8u3lu19srbb8mqqu94bu2e6l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRmi0C5X7UBVuY6gwiIEQhxWPd5xOx6Tw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "553732461983-irmqc3cq8u3lu19srbb8mqqu94bu2e6l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
