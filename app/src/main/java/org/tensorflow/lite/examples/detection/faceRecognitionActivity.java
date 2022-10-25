@@ -578,6 +578,7 @@ public class faceRecognitionActivity extends CameraActivity implements OnImageAv
                 Log.d(TAG, "Bitmap Image was successfully uploaded!");
             }
         });
+
     }
 
 }
