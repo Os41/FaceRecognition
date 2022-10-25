@@ -5,15 +5,21 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.icu.text.SimpleDateFormat;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -25,10 +31,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.w3c.dom.Text;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -46,10 +57,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        getSupportActionBar().hide();
-
-//        Intent intent = new Intent(this, home.class);
-//        startActivity(intent);
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
@@ -83,10 +90,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void checkCurrentUser() {
+        Intent intentFaceRec = new Intent(this, faceRecognitionActivity.class);
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             // User is signed in
-            setContentView(R.layout.activity_home);
+            db = FirebaseFirestore.getInstance();
+            docIdRef = db.collection("Users").document(user.getUid());
+            docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            if(document.get("extra") != null){
+                                setContentView(R.layout.activity_home);
+                            }else{
+                                startActivity(intentFaceRec);
+                            }
+                        } else {
+                            Log.d(TAG, "Document does not exist!");
+                        }
+                    } else {
+                        Log.d(TAG, "Failed with: ", task.getException());
+                    }
+                }
+            });
+
         } else {
             // No user is signed in
             setContentView(R.layout.activity_sign_in);
@@ -95,76 +124,81 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void createAccount(String email, String password) {
-
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                            setContentView(R.layout.activity_sign_in);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "createUserWithEmail:success");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        updateUI(user);
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                        Toast.makeText(MainActivity.this, "Authentication failed.",
+                                Toast.LENGTH_SHORT).show();
+                        updateUI(null);
                     }
-                });
+                }
+            });
     }
 
     private void signIn(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            //updateUI(null);
-                        }
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "signInWithEmail:success");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        updateUI(user);
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInWithEmail:failure", task.getException());
+                        Toast.makeText(MainActivity.this, "Authentication failed.",
+                                Toast.LENGTH_SHORT).show();
+                        updateUI(null);
                     }
-                });
+                }
+            });
     }
 
     private void sendEmailVerification() {
         // Send verification email
         final FirebaseUser user = mAuth.getCurrentUser();
         user.sendEmailVerification()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "Email sent.");
-                        }
+            .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(MainActivity.this, "Email sent.",
+                                Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(MainActivity.this, "Failed with: " + task.getException(),
+                                Toast.LENGTH_SHORT).show();
                     }
-                });
+                }
+            });
     }
 
-    public void sendPasswordReset() {
+    public void sendPasswordReset(String emailAddress) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        String emailAddress = "user@example.com";
 
         auth.sendPasswordResetEmail(emailAddress)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "Email sent.");
-                        }
+            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(MainActivity.this, "Email sent.",
+                                Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(MainActivity.this, "Failed with: " + task.getException(),
+                                Toast.LENGTH_SHORT).show();
                     }
-                });
+                }
+            });
     }
 
     private void reload() { }
@@ -246,7 +280,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void singUpButtonAction(View view) {
-
         EditText email = (EditText) findViewById(R.id.emailText);
         String emailText = email.getText().toString();
         EditText idStudent = (EditText) findViewById(R.id.idStudentText);
@@ -255,14 +288,11 @@ public class MainActivity extends AppCompatActivity {
         String passwordText = password.getText().toString();
         EditText confirmPassword = (EditText) findViewById(R.id.ConfirmPasswordText);
         String confirmPasswordText = confirmPassword.getText().toString();
-
         studentID = idStudentText;
 
         if(passwordText.equals(confirmPasswordText) && passwordText.length() >= 6 && idStudentText.length() == 7 && emailText.contains("@") && emailText.contains(".")) {
 //          Create User With Email And Password
             createAccount(emailText, passwordText);
-
-
         }else{
             if(!passwordText.equals(confirmPasswordText)) {
                 Toast.makeText(this, "Make sure your Confirm password is correct!", Toast.LENGTH_SHORT).show();
@@ -274,7 +304,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Make sure your Email is correct!", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
 
     public void singInButtonAction(View view) {
@@ -294,7 +323,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Make sure your Email is correct!", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
 
     public void singOutButtonAction(View view) {
@@ -311,27 +339,17 @@ public class MainActivity extends AppCompatActivity {
         resetButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, resetEmailText.getText().toString(), Toast.LENGTH_SHORT).show();
-                //FirebaseAuth.getInstance().sendPasswordResetEmail(resetEmailText.getText().toString());
+                sendPasswordReset(resetEmailText.getText().toString());
                 bottomSheetDialog.dismiss();
             }
         });
 
         bottomSheetDialog.show();
 
-
-
-
     }
 
     public void forgotPasswordAction(View view) {
-
         showBottomSheetDialog();
-
     }
-
-
-
-
 
 }

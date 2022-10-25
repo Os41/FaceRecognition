@@ -26,12 +26,18 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="120dp"
         />
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="org.tensorflow.demo.CameraActivity" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_gravity="bottom"
-            android:background="@drawable/boxrectangel"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_gravity="bottom"
+        android:background="@drawable/boxrectangel"/>
 
 
     <LinearLayout
@@ -59,7 +65,7 @@
             android:layout_marginTop="380dp"
             android:layout_gravity="end"
             android:layout_marginHorizontal="80dp"
-
+            android:onClick="onClickSwitch"
             />
 
         <RelativeLayout
@@ -71,21 +77,21 @@
             <ImageButton
                 android:layout_width="52dp"
                 android:layout_height="52dp"
-                android:src="@drawable/close"
-                android:background="@drawable/circulbuttonred"
-                android:layout_marginTop="30dp"
                 android:layout_marginLeft="69dp"
-                />
+                android:layout_marginTop="30dp"
+                android:background="@drawable/circulbuttonred"
+                android:src="@drawable/close"
+                android:onClick="cancelImg"/>
 
             <ImageButton
                 android:layout_width="81dp"
                 android:layout_height="81dp"
-                android:background="@drawable/camerabutton"
-                android:src="@drawable/camerlogo"
+                android:layout_centerHorizontal="true"
                 android:layout_marginLeft="31dp"
                 android:layout_marginTop="15dp"
-                android:layout_centerHorizontal="true"
-                />
+                android:background="@drawable/camerabutton"
+                android:src="@drawable/camerlogo"
+                android:onClick="takeImg"/>
         </RelativeLayout>
 
         <TextView
@@ -107,13 +113,9 @@
             android:text="Confirm your face"
             android:layout_marginTop="20dp"
             android:textColor="#1B202C"
+            android:onClick="confirmImg"
             />
 
-
-
-
     </LinearLayout>
-
-
 
 </FrameLayout>

@@ -288,6 +288,18 @@ public class TFLiteObjectDetectionAPIModel
     return recognitions;
   }
 
+  public String getEmbeedings(){
+
+    String res = "[";
+    for (int i = 0; i < embeedings[0].length; i++) {
+      res += embeedings[0][i];
+      if (i < embeedings[0].length - 1) res += ", ";
+    }
+    res += "]";
+
+    return res;
+  }
+
   @Override
   public void enableStatLogging(final boolean logStats) {}
 
@@ -306,5 +318,9 @@ public class TFLiteObjectDetectionAPIModel
   @Override
   public void setUseNNAPI(boolean isChecked) {
     if (tfLite != null) tfLite.setUseNNAPI(isChecked);
+  }
+
+  public HashMap<String, Recognition> getRegistered() {
+    return registered;
   }
 }
