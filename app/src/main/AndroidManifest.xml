@@ -6,6 +6,7 @@
     <uses-sdk />
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -16,18 +17,13 @@
         android:smallScreens="true"
         android:xlargeScreens="true" />
 
-    <!--        Theme for Main:-->
-    <!--        android:theme="@style/Theme.FaceRecognition"-->
-    <!--        Theme for Detection:-->
-    <!--        android:theme="@style/AppTheme.ObjectDetection"-->
-    <!--        azoooz-->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher_facerec"
         android:label="@string/tfe_od_app_name"
         android:roundIcon="@mipmap/ic_launcher_facerec_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.FaceRecognition"
+        android:theme="@style/AppTheme.ObjectDetection"
         tools:targetApi="31">
 
         <activity
@@ -37,7 +33,18 @@
             android:name=".faceRecognitionActivity"
             android:exported="false" />
         <activity
+            android:name=".facePresentActivity"
+            android:exported="false" />
+        <activity
             android:name=".SignInActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".DetectorActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".classesStatusActivity"
             android:exported="false" />
 
         <activity

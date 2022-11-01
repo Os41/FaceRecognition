@@ -17,6 +17,8 @@ package org.tensorflow.lite.examples.detection.tflite;
 
 import android.graphics.Bitmap;
 import android.graphics.RectF;
+
+import java.util.HashMap;
 import java.util.List;
 
 /** Generic interface for interacting with different recognition engines. */
@@ -36,7 +38,11 @@ public interface SimilarityClassifier {
 
   void setUseNNAPI(boolean isChecked);
 
-  /** An immutable result returned by a Classifier describing what was recognized. */
+  HashMap<String, Recognition> getRegistered();
+
+    String getEmbeedings();
+
+    /** An immutable result returned by a Classifier describing what was recognized. */
   public class Recognition {
     /**
      * A unique identifier for what has been recognized. Specific to the class, not the instance of

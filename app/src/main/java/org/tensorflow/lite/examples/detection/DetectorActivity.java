@@ -20,6 +20,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -27,9 +28,9 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.hardware.camera2.CameraCharacteristics;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -42,19 +43,35 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.core.content.res.ResourcesCompat;
+import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 import org.tensorflow.lite.examples.detection.customview.OverlayView;
 import org.tensorflow.lite.examples.detection.customview.OverlayView.DrawCallback;
 import org.tensorflow.lite.examples.detection.env.BorderedText;
@@ -107,6 +124,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private Bitmap rgbFrameBitmap = null;
   private Bitmap croppedBitmap = null;
   private Bitmap cropCopyBitmap = null;
+  private Bitmap storageBitmap = null;
 
   private boolean computingDetection = false;
   private boolean addPending = false;
@@ -134,6 +152,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
   //private HashMap<String, Classifier.Recognition> knownFaces = new HashMap<>();
 
+  private FirebaseFirestore db;
+  private FirebaseAuth mAuth;
+  private DocumentReference docIdRef;
+  private static final String TAG = "Auth";
+  private FirebaseStorage storage;
+  private FirebaseUser user;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -160,9 +184,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     faceDetector = detector;
 
+    user = FirebaseAuth.getInstance().getCurrentUser();
 
     //checkWritePermission();
-
   }
 
 
@@ -294,7 +318,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     if (SAVE_PREVIEW_BITMAP) {
       ImageUtils.saveBitmap(croppedBitmap);
     }
-
+    addPrevImg();
     InputImage image = InputImage.fromBitmap(croppedBitmap, 0);
     faceDetector
             .process(image)
@@ -305,7 +329,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                   updateResults(currTimestamp, new LinkedList<>());
                   return;
                 }
-//                Log.d("Face", faces.toString());
                 runInBackground(
                         new Runnable() {
                           @Override
@@ -319,6 +342,68 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             });
 
 
+  }
+
+  public void addPrevImg() {
+    final HashMap<String, String> userData = new HashMap<>();
+
+    if(detector.getRegistered().size() == 0){
+      Log.d("Fetching", "START");
+      db = FirebaseFirestore.getInstance();
+
+      docIdRef = db.collection("Users").document(user.getUid());
+
+      docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        @Override
+        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+          if (task.isSuccessful()) {
+            DocumentSnapshot document = task.getResult();
+            userData.put("fullname", document.get("fname") + " " + document.get("lname"));
+            userData.put("studentID", (String) document.get("studentID"));
+            userData.put("location", (String) document.get("location"));
+            userData.put("extra", (String) document.get("extra"));
+            userData.put("distance", document.get("distance").toString());
+            userData.put("color", document.get("color").toString());
+            userData.put("crop", (String) document.get("crop"));
+
+            int OUTPUT_SIZE = 192;
+            float[][] embeedings = new float[1][OUTPUT_SIZE];
+            String[] extraParts = userData.get("extra").substring(1, userData.get("extra").length() - 1).split(", ");
+            for(int i = 0; i < OUTPUT_SIZE; i++){
+              embeedings[0][i] = Float.parseFloat(extraParts[i]);
+            }
+
+            String[] locationParts = userData.get("location").substring(6, userData.get("location").length() - 1).split(", ");
+            final RectF boundingBox = new RectF(
+                    Float.parseFloat(locationParts[0]),
+                    Float.parseFloat(locationParts[1]),
+                    Float.parseFloat(locationParts[2]),
+                    Float.parseFloat(locationParts[3])
+            );
+            Bitmap crop = getImageFromFirebaseStorage(document.get("studentID").toString());
+
+            final SimilarityClassifier.Recognition result = new SimilarityClassifier.Recognition(
+                    "0",
+                    userData.get("fullname"),
+                    Float.parseFloat(userData.get("distance")),
+                    boundingBox
+            );
+            result.setColor(Integer.parseInt(userData.get("color")));
+            result.setLocation(boundingBox);
+            result.setExtra(embeedings);
+            result.setCrop(crop);
+
+            detector.register(userData.get("fullname"), result);
+
+          } else {
+            Log.d(TAG, "Failed with: ", task.getException());
+          }
+        }
+      });
+
+      Log.d("Fetching", "CLOSE");
+      Log.d("Fetching", detector.getRegistered().toString());
+    }
   }
 
   @Override
@@ -420,30 +505,18 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     tracker.trackResults(mappedRecognitions, currTimestamp);
     trackingOverlay.postInvalidate();
     computingDetection = false;
-    //adding = false;
-
-
-    if(mappedRecognitions.size() == 0) {
-        Drawable co = ResourcesCompat.getDrawable(getResources(), R.drawable.omar, null);
-        Bitmap bitmap = Bitmap.createBitmap(co.getIntrinsicWidth(), co.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-
-//      final SimilarityClassifier.Recognition result = new SimilarityClassifier.Recognition(
-//              "0", "Omar 41", -1.0, boundingBox);
-//      result.setColor(Color.YELLOW);
-//      result.setExtra(extra);
-//      result.setCrop(crop);
-
-//      detector.register("Omar 4", result);
-
-    }
 
     if (mappedRecognitions.size() > 0) {
-       LOGGER.i("Adding results");
+//       LOGGER.i("Adding results");
        SimilarityClassifier.Recognition rec = mappedRecognitions.get(0);
 
-      if (rec.getExtra() != null) {
-         showAddFaceDialog(rec);
+       if(rec.getTitle().equals(user.getDisplayName()) && (rec.getDistance() * 100.0f) > 50.0){
+         Log.d("HERE", rec.toString());
        }
+
+      if (rec.getExtra() != null) {
+        detector.register(user.getDisplayName(), rec);
+      }
 
     }
 
@@ -503,8 +576,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     for (Face face : faces) {
 
-//      LOGGER.i("@FACE" + face.toString());
-//      LOGGER.i("Running detection on face " + currTimestamp);
       //results = detector.recognizeImage(croppedBitmap);
 
       final RectF boundingBox = new RectF(face.getBoundingBox());
@@ -598,6 +669,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         result.setLocation(boundingBox);
         result.setExtra(extra);
         result.setCrop(crop);
+
         mappedRecognitions.add(result);
 
       }
@@ -610,9 +682,25 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 //    }
 
     updateResults(currTimestamp, mappedRecognitions);
-
-
   }
 
+  public Bitmap getImageFromFirebaseStorage(String studentID) {
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageRef = storage.getReferenceFromUrl("gs://freca-dev.appspot.com");
+    StorageReference imagesRef = storageRef.child("images/" + studentID + ".jpg");
+    final long ONE_MEGABYTE = 1024*1024;
 
+    imagesRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+      @Override
+      public void onSuccess(byte[] bytes) {
+        storageBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+      }
+    }).addOnFailureListener(new OnFailureListener() {
+      @Override
+      public void onFailure(@NonNull Exception e) {
+          Log.d(TAG, "Failure on getting image from storage!");
+      }
+    });
+    return storageBitmap;
+  }
 }

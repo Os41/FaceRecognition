@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".facePresentActivity">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/first"
+        />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:src="@drawable/sec" />
+
+<!--    <ImageView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:src="@drawable/cameracontainerimage"-->
+<!--        android:layout_gravity="center_horizontal"-->
+<!--        android:layout_marginTop="120dp"-->
+<!--        />-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="top"
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+
+            <ImageButton
+                android:layout_toLeftOf="@+id/title1"
+                android:layout_width="81dp"
+                android:layout_height="81dp"
+                android:layout_marginRight="50dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/op"
+                android:onClick="goBack"
+                android:src="@drawable/left" />
+
+            <TextView
+                android:id="@+id/title1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="18dp"
+                android:text="Face Recognition" />
+
+            <ImageButton
+                android:layout_width="62dp"
+                android:layout_height="62dp"
+                android:layout_marginLeft="60dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/title1"
+                android:background="@drawable/circulbutton"
+                android:onClick="onClickSwitch"
+                android:src="@drawable/camerarotat" />
+
+        </RelativeLayout>
+
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="540dp"
+            android:layout_marginHorizontal="50dp"
+            android:layout_marginVertical="30dp"
+            tools:context="org.tensorflow.demo.CameraActivity" />
+
+    </LinearLayout>
+
+</FrameLayout>

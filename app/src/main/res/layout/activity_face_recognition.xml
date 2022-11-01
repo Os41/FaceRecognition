@@ -9,7 +9,6 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:src="@drawable/first"
         />
 
@@ -19,101 +18,74 @@
         android:layout_gravity="end"
         android:src="@drawable/sec" />
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/cameracontainerimage"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="120dp"
-        />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_gravity="bottom"
-            android:background="@drawable/boxrectangel"/>
-
+<!--    <ImageView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:src="@drawable/cameracontainerimage"-->
+<!--        android:layout_gravity="center_horizontal"-->
+<!--        android:layout_marginTop="120dp"-->
+<!--        />-->
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_marginTop="70dp"
+        android:gravity="top"
         >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Please look the camera and hold  still"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            android:textColor="@color/blackblack"
-            />
-
-        <ImageButton
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:src="@drawable/camerarotat"
-            android:background="@drawable/circulbutton"
-            android:layout_marginTop="380dp"
-            android:layout_gravity="end"
-            android:layout_marginHorizontal="80dp"
-
-            />
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="396dp"
+            android:layout_marginHorizontal="50dp"
+            android:layout_marginVertical="20dp"
+            tools:context="org.tensorflow.demo.CameraActivity" />
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             >
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_below="@+id/m1"
+                android:layout_centerInParent="true"
+                android:background="@drawable/boxrectangel" />
+
+            <ImageButton
+                android:id="@+id/m1"
+                android:layout_width="81dp"
+                android:layout_height="81dp"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/camerabutton"
+                android:onClick="takeImg"
+                android:src="@drawable/camerlogo" />
 
             <ImageButton
                 android:layout_width="52dp"
                 android:layout_height="52dp"
-                android:src="@drawable/close"
-                android:background="@drawable/circulbuttonred"
-                android:layout_marginTop="30dp"
-                android:layout_marginLeft="69dp"
-                />
-
-            <ImageButton
-                android:layout_width="81dp"
-                android:layout_height="81dp"
-                android:background="@drawable/camerabutton"
-                android:src="@drawable/camerlogo"
-                android:layout_marginLeft="31dp"
+                android:layout_marginLeft="50dp"
                 android:layout_marginTop="15dp"
-                android:layout_centerHorizontal="true"
-                />
+
+                android:layout_toRightOf="@+id/m1"
+                android:background="@drawable/circulbutton"
+                android:onClick="onClickSwitch"
+                android:src="@drawable/camerarotat" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/m2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/m1"
+                android:layout_marginHorizontal="65dp"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/whitebutton"
+                android:onClick="confirmImg"
+                android:text="Confirm your face"
+                android:textColor="#1B202C" />
+
         </RelativeLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Make sure you take a clear photo for only your face"
-            android:textColor="@color/white"
-            android:layout_gravity="center_horizontal"
-            android:textSize="16dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginHorizontal="50dp"
-            android:textStyle="bold"
-            />
-        <androidx.appcompat.widget.AppCompatButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/whitebutton"
-            android:layout_marginHorizontal="65dp"
-            android:text="Confirm your face"
-            android:layout_marginTop="20dp"
-            android:textColor="#1B202C"
-            />
-
-
-
-
     </LinearLayout>
-
-
 
 </FrameLayout>
