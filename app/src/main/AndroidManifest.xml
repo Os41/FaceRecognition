@@ -33,7 +33,18 @@
             android:name=".faceRecognitionActivity"
             android:exported="false" />
         <activity
+            android:name=".facePresentActivity"
+            android:exported="false" />
+        <activity
             android:name=".SignInActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".DetectorActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".classesStatusActivity"
             android:exported="false" />
 
         <activity

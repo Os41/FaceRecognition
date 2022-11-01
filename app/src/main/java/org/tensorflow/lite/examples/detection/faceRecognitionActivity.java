@@ -124,6 +124,7 @@ public class faceRecognitionActivity extends CameraActivity implements OnImageAv
     private static final String TAG = "Auth";
     private FirebaseStorage storage;
     private FirebaseUser user;
+    private boolean test = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,12 +155,40 @@ public class faceRecognitionActivity extends CameraActivity implements OnImageAv
         onAddClick();
     }
 
-    public void cancelImg(View view) {
-        this.finish();
-    }
-
     public void confirmImg(View view) {
-        this.finish();
+        if (user != null) {
+            // User is signed in
+            db = FirebaseFirestore.getInstance();
+            docIdRef = db.collection("Users").document(user.getUid());
+            try{
+                docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Log.d(TAG, "HERE");
+                                if(document.get("extra") != null){
+                                    test = true;
+                                }
+                            } else {
+                                Log.d(TAG, "Document does not exist!");
+                            }
+                        } else {
+                            Log.d(TAG, "Failed with: ", task.getException());
+                        }
+                    }
+                });
+            }catch (Exception e){
+                Toast.makeText(this, "1- You need to add a image", Toast.LENGTH_SHORT).show();
+            }
+
+            if(test){
+                faceRecognitionActivity.this.finish();
+            }
+        }else {
+            Toast.makeText(this, "0- You need to add a image", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -300,8 +329,6 @@ public class faceRecognitionActivity extends CameraActivity implements OnImageAv
         return DESIRED_PREVIEW_SIZE;
     }
 
-    // Which detection model to use: by default uses Tensorflow Object Detection API frozen
-    // checkpoints.
     private enum DetectorMode {
         TF_OD_API;
     }
@@ -315,7 +342,6 @@ public class faceRecognitionActivity extends CameraActivity implements OnImageAv
     }
 
 
-    // Face Processing
     private Matrix createTransform(
             final int srcWidth, final int srcHeight,
             final int dstWidth, final int dstHeight,
@@ -518,9 +544,7 @@ public class faceRecognitionActivity extends CameraActivity implements OnImageAv
 
                                     DocumentSnapshot document = task.getResult();
                                     if (document.exists()) {
-                                        if(document.get("studentID") != null){
-                                            uploadImage(finalCrop, document.get("studentID").toString());
-                                        }
+                                        uploadImage(finalCrop, user.getUid());
                                     } else {
                                         Log.d(TAG, "Document does not exist!");
                                     }
@@ -538,7 +562,6 @@ public class faceRecognitionActivity extends CameraActivity implements OnImageAv
                                                     Log.w(TAG, "Error writing document", e);
                                                 }
                                             });
-                                    Log.d("HERE", "Successfully");
                                     Toast.makeText(faceRecognitionActivity.this, "Successfully", Toast.LENGTH_SHORT).show();
                                 } else {
                                     Log.d(TAG, "Failed with: ", task.getException());
@@ -555,14 +578,14 @@ public class faceRecognitionActivity extends CameraActivity implements OnImageAv
         updateResults(currTimestamp, mappedRecognitions);
     }
 
-    public void uploadImage(Bitmap bitmap, String studentID) {
+    public void uploadImage(Bitmap bitmap, String uuid) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReferenceFromUrl("gs://freca-dev.appspot.com");
-        StorageReference imagesRef = storageRef.child("images/" + studentID + ".jpg");
+        StorageReference imagesRef = storageRef.child("images/" + uuid + ".jpg");
 
         UploadTask uploadTask = imagesRef.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {

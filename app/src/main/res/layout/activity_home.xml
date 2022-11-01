@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".home">
+    tools:context=".MainActivity">
 
     <ImageView
         android:layout_width="wrap_content"
@@ -24,14 +24,28 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
-
-        <ImageButton
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/buttonimage"
-            android:layout_gravity="end"
-            android:backgroundTint="#00ffffff"
-            />
+            android:gravity="start">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:backgroundTint="#00ffffff"
+                android:onClick="closeSign"
+                android:src="@drawable/buttonimage" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="end"
+                android:backgroundTint="#00ffffff"
+                android:onClick="classStatus"
+                android:src="@drawable/imageclass" />
+        </RelativeLayout>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,6 +71,7 @@
             android:orientation="horizontal"
             android:layout_marginHorizontal="30dp"
             android:layout_marginTop="10dp"
+            android:onClick="ccam_1"
             >
 
             <ImageView
@@ -148,6 +163,7 @@
             android:orientation="horizontal"
             android:layout_marginHorizontal="30dp"
             android:layout_marginTop="10dp"
+            android:onClick="ccam_2"
             >
 
             <ImageView
@@ -237,6 +253,7 @@
             android:orientation="horizontal"
             android:layout_marginHorizontal="30dp"
             android:layout_marginTop="10dp"
+            android:onClick="ccam_3"
             >
 
             <ImageView
@@ -320,100 +337,6 @@
 
 
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/containershape"
-            android:orientation="horizontal"
-            android:layout_marginHorizontal="30dp"
-            android:layout_marginTop="10dp"
-            >
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/imageclass"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="15dp"
-                />
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:gravity="center"
-
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Class name"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"
-                    android:textSize="18dp"
-                    android:layout_marginBottom="10dp"
-                    />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="S1-1"
-                    android:textSize="18dp"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"
-                    />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="end"
-                android:layout_weight="1"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:paddingTop="15dp"
-                android:paddingBottom="15dp"
-
-                >
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="19:00"
-                    android:background="@drawable/timebutton"
-                    android:layout_weight="1"
-                    android:textColor="@color/white"
-                    android:gravity="center"
-                    android:layout_marginBottom="20dp"
-                    android:elevation="3dp"
-
-
-
-                    />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="19:00"
-                    android:background="@drawable/timmingend"
-                    android:layout_weight="1"
-                    android:textColor="@color/white"
-                    android:gravity="center"
-                    android:elevation="3dp"
-                    />
-
-
-
-            </LinearLayout>
-
-
-        </LinearLayout>
-
-
-
 
 
     </LinearLayout>

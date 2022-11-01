@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -123,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void createAccount(String email, String password) {
+    public void createAccount(String email, String password, String fullname) {
         mAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                 @Override
@@ -132,13 +133,12 @@ public class MainActivity extends AppCompatActivity {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "createUserWithEmail:success");
                         FirebaseUser user = mAuth.getCurrentUser();
-                        updateUI(user);
+                        updateUI(user, fullname);
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w(TAG, "createUserWithEmail:failure", task.getException());
                         Toast.makeText(MainActivity.this, "Authentication failed.",
                                 Toast.LENGTH_SHORT).show();
-                        updateUI(null);
                     }
                 }
             });
@@ -153,13 +153,12 @@ public class MainActivity extends AppCompatActivity {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "signInWithEmail:success");
                         FirebaseUser user = mAuth.getCurrentUser();
-                        updateUI(user);
+                        updateUI(user, "");
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w(TAG, "signInWithEmail:failure", task.getException());
                         Toast.makeText(MainActivity.this, "Authentication failed.",
                                 Toast.LENGTH_SHORT).show();
-                        updateUI(null);
                     }
                 }
             });
@@ -203,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void reload() { }
 
-    private void updateUI(FirebaseUser user) {
+    private void updateUI(FirebaseUser user, String fullname) {
 
         if(user.isEmailVerified()){
 
@@ -213,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
             sendEmailVerification();
             Toast.makeText(MainActivity.this, "You need to verified your email.",
                     Toast.LENGTH_LONG).show();
-            createDB(user.getUid());
+            createDB(user.getUid(), fullname);
         }else{
             Toast.makeText(MainActivity.this, "Authentication failed.",
                     Toast.LENGTH_SHORT).show();
@@ -221,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void createDB(String uid) {
+    public void createDB(String uid, String fullname) {
         db = FirebaseFirestore.getInstance();
 
         docIdRef = db.collection("Users").document(uid);
@@ -236,11 +235,12 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "Document does not exist!");
 
                         Map<String, Object> userData = new HashMap<>();
-                        userData.put("fname", "");
-                        userData.put("mname", "");
-                        userData.put("lname", "");
+                        userData.put("name", fullname);
                         userData.put("studentID", studentID);
                         userData.put("courses", new HashMap<>());
+                        userData.put("course1", false);
+                        userData.put("course2", false);
+                        userData.put("course3", false);
 
                         docIdRef.set(userData)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void signOut() {
+    public static void signOut() {
         FirebaseAuth.getInstance().signOut();
     }
 
@@ -280,6 +280,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void singUpButtonAction(View view) {
+        EditText name = (EditText) findViewById(R.id.nameText);
+        String nameText = name.getText().toString();
         EditText email = (EditText) findViewById(R.id.emailText);
         String emailText = email.getText().toString();
         EditText idStudent = (EditText) findViewById(R.id.idStudentText);
@@ -292,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(passwordText.equals(confirmPasswordText) && passwordText.length() >= 6 && idStudentText.length() == 7 && emailText.contains("@") && emailText.contains(".")) {
 //          Create User With Email And Password
-            createAccount(emailText, passwordText);
+            createAccount(emailText, passwordText, nameText);
         }else{
             if(!passwordText.equals(confirmPasswordText)) {
                 Toast.makeText(this, "Make sure your Confirm password is correct!", Toast.LENGTH_SHORT).show();
@@ -325,16 +327,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void singOutButtonAction(View view) {
-        signOut();
-        setContentView(R.layout.activity_sign_in);
-    }
-
     private void showBottomSheetDialog() {
         bottomSheetDialog = new BottomSheetDialog(this);
         bottomSheetDialog.setContentView(R.layout.pop);
         resetButton = bottomSheetDialog.findViewById(R.id.ResetButton);
-        resetEmailText = bottomSheetDialog.findViewById(R.id.azaz);
+        resetEmailText = bottomSheetDialog.findViewById(R.id.emailForget);
 
         resetButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -352,4 +349,31 @@ public class MainActivity extends AppCompatActivity {
         showBottomSheetDialog();
     }
 
+    public void closeSign(View view) {
+        signOut();
+        setContentView(R.layout.activity_sign_in);
+    }
+
+    public void classStatus(View view) {
+        Intent intent = new Intent(this, classesStatusActivity.class);
+        startActivity(intent);
+    }
+
+    public void ccam_1(View view) {
+        Intent intent = new Intent(this, facePresentActivity.class);
+        intent.putExtra("class", 1);
+        startActivity(intent);
+    }
+
+    public void ccam_2(View view) {
+        Intent intent = new Intent(this, facePresentActivity.class);
+        intent.putExtra("class", 2);
+        startActivity(intent);
+    }
+
+    public void ccam_3(View view) {
+        Intent intent = new Intent(this, facePresentActivity.class);
+        intent.putExtra("class", 3);
+        startActivity(intent);
+    }
 }
